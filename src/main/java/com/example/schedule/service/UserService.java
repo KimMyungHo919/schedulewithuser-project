@@ -7,6 +7,7 @@ import com.example.schedule.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.swing.text.html.Option;
@@ -29,14 +30,23 @@ public class UserService {
     public UserResponseDto findById(Long id) {
         Optional<User> optionalUser = userRepository.findById(id);
 
-        // null 일때 안전하게 하기위해서
         if(optionalUser.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Does not exists id : " + id);
-            // 요청은 문제없으나 데이터가 없을때.
         }
 
         User findUser = optionalUser.get();
 
         return new UserResponseDto(findUser.getUsername(), findUser.getAge());
+    }
+
+    @Transactional
+    public void updatePassword(Long id, String oldPassword, String newPassword) {
+        User findUser = userRepository.findByIdOrElseThrow(id);
+
+        if (!findUser.getPassword().equals(oldPassword)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호가 틀렸습니다.");
+        }
+
+        findUser.updatePassword(newPassword);
     }
 }
