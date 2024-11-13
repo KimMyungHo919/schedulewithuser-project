@@ -44,4 +44,10 @@ public class ScheduleService {
 
         return new ScheduleWithAgeResponseDto(findSchedule.getTitle(), findSchedule.getContents(),writer.getAge());
     }
+
+    public void delete(Long id) {
+        Schedule findSchedule = scheduleRepository.findByIdOrElseThrow(id);
+
+        scheduleRepository.delete(findSchedule);
+    }
 }
